@@ -561,6 +561,27 @@ public class SIPClient extends SIP implements SIPInterface, STUN.Listener {
     }
     return callid;
   }
+  
+  /**
+   * Send an options command to server
+   */
+  public boolean options(String to) {
+	String callid = getcallid();
+	CallDetails cd = getCallDetails(callid);
+	cd.src.to = new String[]{to, to, remotehost + ":" + remoteport, ":"};
+    cd.src.from = new String[]{name, user, remotehost + ":" + remoteport, ":"};
+    cd.src.contact = "<sip:" + user + "@" + cd.localhost + ":" + getlocalport() + ">";
+    cd.uri = "sip:" + to + "@" + remotehost + ":" + remoteport;
+    cd.src.from = replacetag(cd.src.from, generatetag());
+    cd.src.branch = getbranch();
+    cd.src.o1 = 256;
+    cd.src.o2 = 256;
+    cd.src.cseq++;
+    cd.authsent = false;
+    cd.src.extra = null;
+    cd.src.epass = null;
+	return issue(cd, "OPTIONS", false, true);
+  }
 
   /**
    * Send a refer command to server (blind transfer)
